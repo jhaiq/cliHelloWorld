@@ -1,0 +1,320 @@
+1. 配置增删改查
+package com.wode.mapper;
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.ResultMap;
+import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+import com.wode.pojo.User;
+
+public interface UserMapper {
+    //使用注解的方式新增用户
+    @Insert("insert into users values(null,#{user.userName},#{user.userPwd},#{user.userType})")
+    @Options(keyProperty="user.userId",useGeneratedKeys=true)
+    public int addUser(@Param("user")User user);
+    //注解的方式修改用户资料---多参数传递第二种方式
+    @Update("update users set user_name=#{name} where user_id=#{id}")
+    public int updateUserNameById(@Param("name")String name,@Param("id")int id);
+    //注解的方式删除用户
+    @Delete("delete from users where user_id=#{id}")
+    public int delById(@Param("id") int id);
+
+    @Select("select * from users")
+/**    @Results({
+        @Result(id=true,property="userId",column="user_id",javaType=Integer.class),
+        @Result(property="userName",column="user_name",javaType=String.class),
+        @Result(property="userPwd",column="user_pwd",javaType=String.class),
+        @Result(property="userType",column="user_type",javaType=Integer.class)
+    })
+    */
+    @ResultMap("userMap")
+    public List<User> findAllUser();
+}
+
+2. 常用查询
+一对一 : @One
+
+package com.wode.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.One;
+import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.ResultMap;
+import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+
+import com.wode.pojo.User;
+
+public interface UserMapper {
+    //使用注解的方式新增用户
+    @Insert("insert into users values(null,#{user.userName},#{user.userPwd},#{user.userType})")
+    @Options(keyProperty="user.userId",useGeneratedKeys=true)
+    public int addUser(@Param("user")User user);
+    //注解的方式修改用户资料---多参数传递第二种方式
+    @Update("update users set user_name=#{name} where user_id=#{id}")
+    public int updateUserNameById(@Param("name")String name,@Param("id")int id);
+    //注解的方式删除用户
+    @Delete("delete from users where user_id=#{id}")
+    public int delById(@Param("id") int id);
+
+    @Select("select * from users")
+/**    @Results({
+        @Result(id=true,property="userId",column="user_id",javaType=Integer.class),
+        @Result(property="userName",column="user_name",javaType=String.class),
+        @Result(property="userPwd",column="user_pwd",javaType=String.class),
+        @Result(property="userType",column="user_type",javaType=Integer.class)
+    })
+    */
+    @ResultMap("userMap")
+    public List<User> findAllUser();
+
+    @Select("select * from users where user_id=#{id}")
+    @ResultMap("userMap")
+    public User findUserById(@Param("id") int id);
+
+
+
+    //1:1
+    @Select("select * from users where user_id=#{id}")
+    @ResultMap("userMap")
+    public User findUserAndInfo(@Param("id")int id);
+}
+
+package com.wode.mapper;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.One;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.Select;
+
+import com.wode.pojo.UserInfo;
+
+public interface UserInfoMapper {
+    @Select("select * from userInfo")
+    @Results({
+        @Result(id=true,column="info_id",property="infoId",javaType=Integer.class),
+        @Result(column="nickName",javaType=String.class,property="nickName"),
+        @Result(column="email",property="email",javaType=String.class)
+    })
+    public List<UserInfo> findUserInfo();
+
+    //user中外键查询数据
+    @Select("select * from userInfo where user_id=#{id}")
+    @Results({
+        @Result(id=true,column="info_id",property="infoId",javaType=Integer.class),
+        @Result(column="nickName",javaType=String.class,property="nickName"),
+        @Result(column="email",property="email",javaType=String.class)
+    })
+    public UserInfo findByUser(@Param("id")int id);
+
+    //1:1
+    @Select("select * from userinfo where info_id=#{info_id}")
+    @Results({
+        @Result(id=true,column="info_id",property="infoId",javaType=Integer.class),
+        @Result(column="nickName",javaType=String.class,property="nickName"),
+        @Result(column="email",property="email",javaType=String.class),
+        @Result(column="user_id",property="user",one=@One(select="com.wode.mapper.UserMapper.findUserById"))
+    })
+    public UserInfo findInfoAndUser(@Param("info_id") int id);
+
+}
+
+一对多： @Many
+
+public interface UserMapper {
+    //使用注解的方式新增用户
+    @Insert("insert into users values(null,#{user.userName},#{user.userPwd},#{user.userType})")
+    @Options(keyProperty="user.userId",useGeneratedKeys=true)
+    public int addUser(@Param("user")User user);
+    //注解的方式修改用户资料---多参数传递第二种方式
+    @Update("update users set user_name=#{name} where user_id=#{id}")
+    public int updateUserNameById(@Param("name")String name,@Param("id")int id);
+    //注解的方式删除用户
+    @Delete("delete from users where user_id=#{id}")
+    public int delById(@Param("id") int id);
+
+    @Select("select * from users")
+/**    @Results({
+        @Result(id=true,property="userId",column="user_id",javaType=Integer.class),
+        @Result(property="userName",column="user_name",javaType=String.class),
+        @Result(property="userPwd",column="user_pwd",javaType=String.class),
+        @Result(property="userType",column="user_type",javaType=Integer.class)
+    })
+    */
+    @ResultMap("userMap")
+    public List<User> findAllUser();
+
+    @Select("select * from users where user_id=#{id}")
+    @ResultMap("userMap")
+    public User findUserById(@Param("id") int id);
+
+    //一对多查询
+    @Select("select * from users where user_id=#{id}")
+    @Results({
+        @Result(id=true,property="userId",column="user_id",javaType=Integer.class),
+        @Result(property="userName",column="user_name",javaType=String.class),
+        @Result(property="userPwd",column="user_pwd",javaType=String.class),
+        @Result(property="userType",column="user_type",javaType=Integer.class),
+        @Result(property="info",column="user_id",many=@Many(select="com.wode.mapper.UserInfoMapper.findByUser"))
+    })
+    public User findUserAndInfo(@Param("id")int id);
+}
+1
+public interface UserInfoMapper {
+    @Select("select * from userInfo")
+    @Results({
+        @Result(id=true,column="info_id",property="infoId",javaType=Integer.class),
+        @Result(column="nickName",javaType=String.class,property="nickName"),
+        @Result(column="email",property="email",javaType=String.class)
+    })
+    public List<UserInfo> findUserInfo();
+
+    //user中外键查询数据
+    @Select("select * from userInfo where user_id=#{id}")
+    @Results({
+        @Result(id=true,column="info_id",property="infoId",javaType=Integer.class),
+        @Result(column="nickName",javaType=String.class,property="nickName"),
+        @Result(column="email",property="email",javaType=String.class)
+    })
+    public UserInfo findByUser(@Param("id")int id);
+
+    @Select("select * from userInfo where info_id=#{infoId}")
+    @Results({
+        @Result(id=true,column="info_id",property="infoId",javaType=Integer.class),
+        @Result(column="nickName",javaType=String.class,property="nickName"),
+        @Result(column="email",property="email",javaType=String.class),
+        @Result(column="user_id",property="user",one=@One(select="com.wode.mapper.UserMapper.findUserById"))
+    })
+    public UserInfo findInfoAndUser(@Param("infoId")int infoId);
+}
+
+多对多： @Many 和@One
+
+public interface UserMapper {
+    //使用注解的方式新增用户
+    @Insert("insert into users values(null,#{user.userName},#{user.userPwd},#{user.userType})")
+    @Options(keyProperty="user.userId",useGeneratedKeys=true)
+    public int addUser(@Param("user")User user);
+    //注解的方式修改用户资料---多参数传递第二种方式
+    @Update("update users set user_name=#{name} where user_id=#{id}")
+    public int updateUserNameById(@Param("name")String name,@Param("id")int id);
+    //注解的方式删除用户
+    @Delete("delete from users where user_id=#{id}")
+    public int delById(@Param("id") int id);
+
+    @Select("select * from users")
+/**    @Results({
+        @Result(id=true,property="userId",column="user_id",javaType=Integer.class),
+        @Result(property="userName",column="user_name",javaType=String.class),
+        @Result(property="userPwd",column="user_pwd",javaType=String.class),
+        @Result(property="userType",column="user_type",javaType=Integer.class)
+    })
+    */
+    @ResultMap("userMap")
+    public List<User> findAllUser();
+
+    @Select("select * from users where user_id=#{id}")
+    @ResultMap("userMap")
+    public User findUserById(@Param("id") int id);
+
+    //多对多查询
+    @Select("select * from users where user_id=#{id}")
+    @Results({
+        @Result(id=true,property="userId",column="user_id",javaType=Integer.class),
+        @Result(property="userName",column="user_name",javaType=String.class),
+        @Result(property="userPwd",column="user_pwd",javaType=String.class),
+        @Result(property="userType",column="user_type",javaType=Integer.class),
+        @Result(property="course",column="user_id",many=@Many(select="com.wode.mapper.CourseMapper.findCourseByUser"))
+    })
+    public User findUserAndCourse(@Param("id")int id);
+
+
+
+
+    @Select("select * from users where user_id in (select user_id from user_course where course_id=#{courseId})")
+    @Results({
+        @Result(id=true,property="userId",column="user_id",javaType=Integer.class),
+        @Result(property="userName",column="user_name",javaType=String.class),
+        @Result(property="userPwd",column="user_pwd",javaType=String.class),
+        @Result(property="userType",column="user_type",javaType=Integer.class)
+    })
+    public User findUserByCourse(@Param("id")int courseId);
+}
+
+public interface UserInfoMapper {
+    @Select("select * from userInfo")
+    @Results({
+        @Result(id=true,column="info_id",property="infoId",javaType=Integer.class),
+        @Result(column="nickName",javaType=String.class,property="nickName"),
+        @Result(column="email",property="email",javaType=String.class)
+    })
+    public List<UserInfo> findUserInfo();
+
+    //user中外键查询数据
+    @Select("select * from userInfo where user_id=#{id}")
+    @Results({
+        @Result(id=true,column="info_id",property="infoId",javaType=Integer.class),
+        @Result(column="nickName",javaType=String.class,property="nickName"),
+        @Result(column="email",property="email",javaType=String.class)
+    })
+    public UserInfo findByUser(@Param("id")int id);
+
+    @Select("select * from userInfo where info_id=#{infoId}")
+    @Results({
+        @Result(id=true,column="info_id",property="infoId",javaType=Integer.class),
+        @Result(column="nickName",javaType=String.class,property="nickName"),
+        @Result(column="email",property="email",javaType=String.class),
+        @Result(column="user_id",property="user",one=@One(select="com.wode.mapper.UserMapper.findUserById"))
+    })
+    public UserInfo findInfoAndUser(@Param("infoId")int infoId);
+}
+
+public interface CourseMapper {
+    @Select("select * from course where course_id=#{id}")
+    @Results({
+        @Result(id=true,column="course_id",property="courseId",javaType=Integer.class),
+        @Result(column="code",property="code",javaType=String.class),
+        @Result(column="name",property="name",javaType=String.class)
+    })
+    public Course findCourseById(@Param("id")int id);
+
+
+    @Select("select * from course where course_id in (select course_id from user_course where user_id=#{id})")
+    @Results({
+        @Result(id=true,column="course_id",property="courseId",javaType=Integer.class),
+        @Result(column="code",property="code",javaType=String.class),
+        @Result(column="name",property="name",javaType=String.class)
+    })
+    public Course findCourseByUser(@Param("uId")int id);
+
+
+    @Select("select * from course where course_id=#{courseId}")
+    @Results({
+        @Result(id=true,column="course_id",property="courseId",javaType=Integer.class),
+        @Result(column="code",property="code",javaType=String.class),
+        @Result(column="name",property="name",javaType=String.class),
+        @Result(property="users",column="course_id",many=@Many(select="com.wode.mapper.UserMapper.findUserByCourse"))
+    })
+    public Course findCourseAndUser(@Param("courseId")int courseId);
+}
+---------------------
+作者：季检察官
+来源：CSDN
+原文：https://blog.csdn.net/m0_37779570/article/details/81514757
+版权声明：本文为博主原创文章，转载请附上博文链接！

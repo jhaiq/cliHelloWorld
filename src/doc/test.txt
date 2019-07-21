@@ -1,0 +1,113 @@
+package com;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+
+public class Test1 {
+
+	public static void main(String[] args) {
+		SqlSessionFactory factory= FKSqlSessionFactory.getSqlSessionFactory();
+		SqlSession session = factory.openSession();
+		UserMapper mapper = session.getMapper(UserMapper.class);//获取映射器实例
+
+		User user = new User();
+		user.setName("zhujunwen");
+		user.setSex("m");
+
+		mapper.insertT(user);	//调用映射器中的insertT（）方法进行数据库插入
+
+		session.commit();
+		session.close();
+	}
+}
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+     <environments default="mysql">
+         <environment id="mysql">
+             <transactionManager type="JDBC"/>
+             <dataSource type="POOLED">
+                 <property name="driver" value="com.mysql.jdbc.Driver"/>
+                 <property name="url" value="jdbc:mysql://localhost:3306/mybatis"/>
+                 <property name="username" value="root"/>
+                 <property name="password" value="zhujunwen"/>
+             </dataSource>
+         </environment>
+     </environments>
+
+     <!-- 配置映射-->
+     <mappers>
+     	<!-- 若映射文件mapper 是xml，则<mapper recourse...>，若映射文件为java文件，则<mapper class.....> -->
+        <mapper class="com.UserMapper"/>
+     </mappers>
+</configuration>
+---------------------
+package com;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+
+public interface UserMapper {
+
+    /*
+    	这个一个接口，但不需要实现它，用于 函数与SQL语句 的映射
+     * */
+
+    @Insert("insert into tb_user(name,sex) values(#{name},#{sex})")
+    public void insertT(User user);
+
+    @Delete("delete from tb_user where id=#{id}")
+    public void deleteById(int id);
+
+    @Update("update tb_user set name=#{name},sex=#{sex} where id=#{id}")
+    public void updateT(User user);
+
+    @Select("select * from tb_user where id=#{id}")
+    public User getUser(int id);
+
+    @Select("select * from tb_user")
+    public List<User> getAllUsers();
+}
+---------------------
+package com;
+
+public class User {
+	private Integer id;
+	private String name;
+	private String sex;
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getSex() {
+		return sex;
+	}
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+
+	public String toString() {
+		return "User [id=" + id + ", name=" + name + ", sex=" + sex + "]";
+	}
+}
+---------------------
+作者：ZJE_ANDY
+来源：CSDN
+原文：https://blog.csdn.net/u014453898/article/details/79818080
+版权声明：本文为博主原创文章，转载请附上博文链接！
