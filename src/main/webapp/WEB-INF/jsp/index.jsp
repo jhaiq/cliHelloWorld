@@ -10,5 +10,12 @@
     密码:<sf:password path="password"/>
     <input type="submit" value="提交">
 </sf:form>
+
+<%--@elvariable id="country" type="com.ssm.model.Country"--%>
+<sf:form method="post" modelAttribute="country" action="/getCountry">
+    国家名:<sf:input path="name"/>
+    <input type="submit" value="提交">
+</sf:form>
+
 </body>
 </html>

@@ -1,5 +1,6 @@
 package com.ssm.controller;
 
+import com.ssm.model.Country;
 import com.ssm.model.User;
 import com.ssm.service.IUserService;
 import com.ssm.service.impl.UserServiceImpl;
@@ -32,4 +33,12 @@ public class MainController {
         service.addUser(user); //一起测试了
         return service.findUserById(2);
     }
+
+    @RequestMapping(value = "/getCountry", method = RequestMethod.POST)
+    @ResponseBody
+    public Country getCountry(Country contry) {
+//        service.getCountry(contry);
+        return service.getCountry(contry);
+    }
+
 }
